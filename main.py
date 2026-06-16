@@ -1,3 +1,4 @@
+import os
 import discord
 from discord.ext import commands
 from deep_translator import GoogleTranslator
@@ -43,4 +44,4 @@ async def on_message(message):
     await bot.process_commands(message)
 
 # توکن خود را در اینجا قرار دهید
-bot.run('MTUxNjUyODM2NjY0MjEzOTM5Nw.GJD-6s.2G5jq8l2yDieo8mFPEXGKdMnVAfAK_FJnKdysg')
+bot.run(os.environ.get('DISCORD_TOKEN'))
