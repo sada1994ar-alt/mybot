@@ -16,9 +16,10 @@ async def on_message(message):
     if message.author == bot.user:
         return
     
-    # ترجمه با deep-translator
+    # ترجمه پیام به فارسی
     translated_text = GoogleTranslator(source='auto', target='fa').translate(message.content)
     await message.channel.send(f"ترجمه: {translated_text}")
+    
     await bot.process_commands(message)
 
 bot.run(os.environ['TOKEN'])
