@@ -1,4 +1,3 @@
 discord.py
 flask
-aiosqlite
 deep-translator
