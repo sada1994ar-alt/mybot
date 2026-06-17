@@ -31,7 +31,7 @@ async def set_lang(ctx, lang: str):
         await db.commit()
     await ctx.send(f"زبان شما با موفقیت به {lang} تغییر یافت.")
 
-# ترجمه خودکار پیام‌ها
+# ترجمه خودکار
 @bot.event
 async def on_message(message):
     if message.author == bot.user or message.content.startswith('!'):
@@ -48,11 +48,11 @@ async def on_message(message):
             translated = translator.translate(message.content, dest=target_lang)
             await message.channel.send(f"{message.author.name}: {translated.text}")
         except:
-            pass # اگر زبان اشتباه بود، ربات خطا نمی‌دهد
+            pass
     
     await bot.process_commands(message)
 
-# بخش وب‌سرور برای آنلاین ماندن
+# وب‌سرور برای آنلاین ماندن
 app = Flask(__name__)
 @app.route('/')
 def home():
@@ -62,5 +62,4 @@ def run():
 
 if __name__ == "__main__":
     Thread(target=run).start()
-    # در اینجا ربات از محیط هاست توکن را می‌خواند
     bot.run(os.environ['TOKEN'])
