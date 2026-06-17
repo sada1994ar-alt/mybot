@@ -8,36 +8,34 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# حافظه برای ذخیره زبان کاربران
+# ذخیره زبان کاربران: {user_id: lang_code}
 user_languages = {}
 
 @bot.command()
 async def setlang(ctx, lang_code: str):
-    # ذخیره زبان کاربر
     user_languages[ctx.author.id] = lang_code.lower()
-    await ctx.send(f"✅ زبان شما به {lang_code} تغییر کرد.")
+    await ctx.send(f"✅ زبان مقصد شما برای دریافت ترجمه‌ها روی {lang_code.upper()} تنظیم شد.")
 
 @bot.event
 async def on_message(message):
-    # اگر پیام از طرف خود ربات بود، نادیده بگیر
     if message.author == bot.user:
         return
     
-    # اگر پیام یک دستور (مثل !setlang) بود، آن را پردازش کن
+    # پردازش دستورات
     if message.content.startswith('!'):
         await bot.process_commands(message)
         return
 
-    # اگر کاربر قبلاً زبانی انتخاب کرده بود، پیامش را ترجمه کن
-    if message.author.id in user_languages:
-        target_lang = user_languages[message.author.id]
-        try:
-            # ترجمه خودکار
-            translated = GoogleTranslator(source='auto', target=target_lang).translate(message.content)
-            # ارسال ترجمه به صورت ریپلای
-            await message.reply(f"({target_lang.upper()}): {translated}")
-        except Exception as e:
-            print(f"خطا در ترجمه: {e}")
+    # ارسال ترجمه به همه افرادی که زبان خود را ست کرده‌اند
+    for user_id, target_lang in user_languages.items():
+        if user_id != message.author.id: # برای خودِ شخص ترجمه نکند
+            try:
+                translated = GoogleTranslator(source='auto', target=target_lang).translate(message.content)
+                user = await bot.fetch_user(user_id)
+                # ارسال به صورت پیام خصوصی یا در کانال (اینجا به صورت ریپلای در کانال است)
+                await message.channel.send(f"ترجمه برای <@{user_id}> ({target_lang.upper()}): {translated}")
+            except Exception as e:
+                print(f"Error: {e}")
 
 keep_alive()
 bot.run(os.environ['TOKEN'])
