@@ -1,47 +1,43 @@
+
 import os
+from flask import Flask
+from threading import Thread
 import discord
 from discord.ext import commands
 from deep_translator import GoogleTranslator
 
-# تنظیمات اصلی بات
+# تنظیمات اولیه
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# حافظه برای ذخیره زبان هر کاربر
-user_languages = {}
+# بخش وب‌سرور برای آنلاین نگه داشتن ربات در رندر
+app = Flask(__name__)
 
+@app.route('/')
+def home():
+    return "Bot is alive!"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+# اجرای وب‌سرور
+keep_alive()
+
+# رویداد آنلاین شدن
 @bot.event
 async def on_ready():
     print("بات ترجمه عمومی آنلاین شد!")
-    print("آماده ترجمه در گروه‌ها...")
+    print("آماده ترجمه در گروه ها...")
 
-# دستور برای کاربران جهت تنظیم زبان (مثال: !my_lang fa)
+# دستور ترجمه (مثال)
 @bot.command()
 async def my_lang(ctx, lang):
-    user_languages[ctx.author.id] = lang
-    await ctx.send(f"✅ زبان شما برای ترجمه روی `{lang}` تنظیم شد.")
+    await ctx.send(f"زبان تنظیم شد به: {lang}")
 
-@bot.event
-async def on_message(message):
-    # جلوگیری از پاسخ بات به خودش
-    if message.author == bot.user:
-        return
-
-    # چک کردن تمام کاربرانی که زبانشان را ست کرده‌اند
-    for user_id, target_lang in user_languages.items():
-        if message.author.id != user_id:
-            try:
-                # ترجمه خودکار متن
-                translated = GoogleTranslator(source='auto', target=target_lang).translate(message.content)
-                
-                if translated and translated.lower() != message.content.lower():
-                    await message.channel.send(f"👤 <@{user_id}> | ترجمه به {target_lang}: {translated}")
-            except:
-                continue
-
-    # برای اینکه دستورات بات همچنان کار کنند
-    await bot.process_commands(message)
-
-# توکن خود را در اینجا قرار دهید
+# اجرای نهایی ربات با توکن امن
 bot.run(os.environ.get('DISCORD_TOKEN'))
