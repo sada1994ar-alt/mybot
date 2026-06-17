@@ -41,3 +41,14 @@ async def my_lang(ctx, lang):
 
 # اجرای نهایی ربات با توکن امن
 bot.run(os.environ.get('DISCORD_TOKEN'))
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+keep_alive()
+
+# اجرای ربات با استفاده از متغیر محیطی
+bot.run(os.environ.get('DISCORD_TOKEN'))
